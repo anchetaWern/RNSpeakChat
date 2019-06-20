@@ -1,5 +1,10 @@
 import React, { Component } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Picker } from "react-native";
+import axios from 'axios';
+import AsyncStorage from '@react-native-community/async-storage';
+
+import base_instance_opt from '../config/base_instance_opt';
+import locales from '../config/locales';
 
 class Login extends Component {
   static navigationOptions = {
@@ -9,15 +14,73 @@ class Login extends Component {
 
   state = {
     username: "",
-    is_loading: false
+    is_loading: false,
+    languages: [],
+    language: 'en'
   };
   //
+
+
+  async componentDidMount() {
+    try {
+
+      const stored_languages = await AsyncStorage.getItem('languages');
+
+      if (!stored_languages) {
+        const languages_opt = { ...base_instance_opt };
+        const languages_instance = axios.create(languages_opt);
+        const languages_res = await languages_instance.get('/languages?api-version=3.0&scope=translation');
+
+        const lang_keys = Object.keys(languages_res.data.translation);
+        const lang_values = Object.values(languages_res.data.translation).map((x) => x.nativeName);
+
+        var fetched_languages = [];
+        lang_keys.forEach((key, i) => {
+          if (locales.short.indexOf(key) !== -1) {
+            fetched_languages.push({
+              key,
+              val: lang_values[i]
+            });
+          }
+        });
+
+        await AsyncStorage.setItem('languages', JSON.stringify(fetched_languages));
+      }
+
+      const languages = (stored_languages) ? JSON.parse(stored_languages) : fetched_languages;
+      await this.setState({
+        languages
+      });
+
+    } catch (err) {
+      console.log("error occured: ", err);
+    }
+  }
+
+
+  renderLanguages = () => {
+    return this.state.languages.map((lang) => {
+      return <Picker.Item label={lang.val} value={lang.key} key={lang.key} />
+    });
+  }
+
 
   render() {
     return (
       <View style={styles.wrapper}>
         <View style={styles.container}>
           <View style={styles.main}>
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Enter your language</Text>
+              <Picker
+                selectedValue={this.state.language}
+                style={styles.picker}
+                onValueChange={(itemValue, itemIndex) =>
+                  this.setState({language: itemValue})
+                }>
+                {this.renderLanguages()}
+              </Picker>
+            </View>
 
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Enter your username</Text>
@@ -43,7 +106,7 @@ class Login extends Component {
 
 
   login = async () => {
-    const { username } = this.state;
+    const { language, username } = this.state;
 
     this.setState({
       is_loading: true
@@ -51,19 +114,19 @@ class Login extends Component {
 
     if (username) {
       this.props.navigation.navigate("Rooms", {
+        'language': language,
         'id': username
       });
     }
 
     await this.setState({
       is_loading: false,
-      username: ""
+      username: "",
+      language: "en"
     });
   }
 
 }
-
-export default Login;
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -93,5 +156,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     alignSelf: "center"
+  },
+  picker: {
+    height: 50,
+    width: 200
   }
 });
+
+export default Login;

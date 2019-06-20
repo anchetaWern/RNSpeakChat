@@ -19,6 +19,7 @@ class Rooms extends Component {
     super(props);
     const { navigation } = this.props;
     this.user_id = navigation.getParam("id");
+    this.language = navigation.getParam("language")
   }
 
 
@@ -51,7 +52,7 @@ class Rooms extends Component {
       </View>
     );
   }
-  //
+
 
   renderRoom = ({ item }) => {
     return (
@@ -72,13 +73,14 @@ class Rooms extends Component {
       </View>
     );
   }
-  //
+
 
   goToChatScreen = (room) => {
     this.props.navigation.navigate("Chat", {
       user_id: this.user_id,
       room_id: room.id,
-      room_name: room.name
+      room_name: room.name,
+      language: this.language
     });
   }
 
