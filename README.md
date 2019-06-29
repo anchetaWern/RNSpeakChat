@@ -8,6 +8,7 @@ A multi-lingual React Native chat app with speech to text capabilities.
 -   [Yarn](https://yarnpkg.com/en/)
 -   [Chatkit](https://pusher.com/chatkit) - create an app instance and enable token provider URL.
 -   [Microsoft Azure Account](https://azure.microsoft.com/en-in/free/) - set up Translator Text API on Cognitive Services (free tier is plenty).
+-   [ngrok](https://ngrok.com/)
 
 ## Getting Started
 
