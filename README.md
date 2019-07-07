@@ -1,6 +1,8 @@
 # RNSpeakChat
 A multi-lingual React Native chat app with speech to text capabilities.
 
+You can find the full tutorial at: [https://pusher.com/tutorials/speech-text-react-native](https://pusher.com/tutorials/speech-text-react-native)
+
 ### Prerequisites
 
 -   React Native development environment
